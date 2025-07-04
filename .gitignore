@@ -1,0 +1,7 @@
+.venv
+venv
+models
+data
+__pycache__
+.idea
+controllers/__pycache__
