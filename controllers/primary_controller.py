@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 
-from movie_recommendation import get_hybrid_recommendations
+from utils.model_utils import get_custom_recommendations
 from movie_recommendation import main as train_model
 
 
@@ -20,8 +20,17 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+class Rating(BaseModel):
+    movieId: int
+    rating: int
+
+class NewUser(BaseModel):
+    user_id: str
+    ratings: list[Rating]
+
 @app.post("/recommend")
-def recommend(req: RecommendationRequest):
+def recommend(req: NewUser):
     # Call your hybrid recommendation function
-    recs = get_hybrid_recommendations(req.user_id, req.movie_id, req.top_n)
-    return {"recommendations": recs}
+    recs = get_custom_recommendations(req.user_id, req.ratings)
+    return recs.to_dict(orient='records')
+
